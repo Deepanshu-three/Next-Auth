@@ -15,9 +15,9 @@ export async function POST(request: NextRequest){
 
         console.log(reqBody)
 
-        await User.findOne({email})
+        const user = await User.findOne({email})
 
-        if(User) {
+        if(user) {
             return NextResponse.json({error: "User already exits"},
                 {status: 400}
             )
