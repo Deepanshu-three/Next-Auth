@@ -1,24 +1,37 @@
 import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel"
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken"
 import { getDataFromToken } from "@/helpers/getDataFromToken";
 
 connect()
 
-export async function POST(request: NextRequest){
+export async function GET(request: NextRequest){
 
-    //extract data from token
-    const userId = await getDataFromToken(request)
+    try {
+        //extract data from token
+        const userId = await getDataFromToken(request)
+        
+        console.log(userId)
+
+        const user = await User.findOne({_id: userId}).select("-password")
     
-    const user = User.findOne({_id: userId}).select("-password")
-
-    //check if there is no user
-
-    return NextResponse.json({
-        message: "User found",
-        data: user
-    })
+        //check if there is no user
+        console.log(user)
+        if (!user) {
+            return NextResponse.json(
+                { message: "User not found" },
+                { status: 404 }
+            );
+        }
+    
+        return NextResponse.json({
+            message: "User found",
+            data: user
+        })
+    } catch (error:any) {
+        return NextResponse.json({
+            error: error.message}, {status: 400}
+    )
+    }
 
 }
